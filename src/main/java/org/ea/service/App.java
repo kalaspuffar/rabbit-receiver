@@ -11,7 +11,7 @@ public class App
 
     public static void main( String[] args ) {
       Connection connection = null;
-      Channel channel = null;
+      final Channel channel;
       try {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("172.17.0.2");
@@ -34,20 +34,12 @@ public class App
               ) throws IOException {
             String message = new String(body, "UTF-8");
             System.out.println(" [x] Received '" + message + "'");
+            channel.basicAck(envelope.getDeliveryTag(), false);
           }
         };
-        while(true) {
-          channel.basicConsume(OUTPUT_QUEUE_NAME, true, consumer);
-        }
+        channel.basicConsume(OUTPUT_QUEUE_NAME, false, consumer);
       } catch (Exception e) {
         e.printStackTrace();
-      } finally {
-        try {
-          if(channel != null) channel.close();
-          if(connection != null) connection.close();
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
       }
     }
 }
